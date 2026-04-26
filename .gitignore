@@ -1,0 +1,19 @@
+# Node
+frontend/node_modules
+frontend/dist
+
+# Python
+backend/.venv
+backend/__pycache__
+backend/**/*.pyc
+
+# Env
+backend/.env
+frontend/.env
+
+# Data artifacts
+backend/data/*.index
+backend/data/*_meta.json
+
+# Logs
+*.log
