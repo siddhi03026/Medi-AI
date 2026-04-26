@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Path, Query
 
 from app.controllers.hospital_controller import get_hospital, list_hospitals
 from app.schemas.hospital import HospitalDetailResponse, HospitalListResponse
@@ -12,5 +12,11 @@ async def hospitals(limit: int = Query(default=50, ge=1, le=200)):
 
 
 @router.get("/hospital/{hospital_id}", response_model=HospitalDetailResponse)
-async def hospital_detail(hospital_id: str):
+async def hospital_detail(
+    hospital_id: str = Path(
+        ...,
+        description="Hospital ID from the /hospitals response",
+        examples=["663f0f0a2b7e6f2e8c1a1234"],
+    )
+):
     return await get_hospital(hospital_id)

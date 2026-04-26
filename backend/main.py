@@ -71,6 +71,24 @@ app.include_router(emergency.router)
 app.include_router(admin.router)
 
 
+@app.get("/")
+async def root():
+    return {
+        "service": settings.app_name,
+        "status": "ok",
+        "docs": "/docs",
+        "health": "/health",
+        "routes": [
+            "/auth/login",
+            "/auth/signup",
+            "/search",
+            "/hospitals",
+            "/hospital/{id}",
+            "/emergency",
+        ],
+    }
+
+
 @app.get("/health")
 async def health_check():
     return {
