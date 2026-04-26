@@ -94,3 +94,64 @@ h3,
   @apply fixed bottom-6 z-40 rounded-full border bg-white shadow-lg;
   border-color: rgba(36, 39, 49, 0.6);
 }
+
+.emergency-blink {
+  animation: emergencyBlink 1.2s ease-in-out infinite;
+}
+
+@keyframes emergencyBlink {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.52);
+  }
+  50% {
+    opacity: 0.88;
+    transform: scale(1.02);
+    box-shadow: 0 0 0 14px rgba(239, 68, 68, 0);
+  }
+}
+
+.heartbeat-path {
+  stroke-dasharray: 20 10;
+  animation: heartbeatFlow 1.6s linear infinite;
+}
+
+@keyframes heartbeatFlow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -120;
+  }
+}
+
+.hospital-float {
+  animation: hospitalFloat 3.8s ease-in-out infinite;
+}
+
+@keyframes hospitalFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+.hospital-flip {
+  transform-style: preserve-3d;
+  animation: hospitalFlip 6.5s ease-in-out infinite;
+}
+
+@keyframes hospitalFlip {
+  0%,
+  100% {
+    transform: translateX(-50%) rotateY(0deg);
+  }
+  50% {
+    transform: translateX(-50%) rotateY(9deg);
+  }
+}

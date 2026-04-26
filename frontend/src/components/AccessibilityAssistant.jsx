@@ -21,6 +21,13 @@ export default function AccessibilityAssistant({ mode, onSetMode }) {
 
   useEffect(() => {
     if (mode === 'blind') {
+      setOpen(true);
+      localStorage.removeItem('imai_assistant_done');
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    if (mode === 'blind') {
       startListening();
     } else {
       stopListening();

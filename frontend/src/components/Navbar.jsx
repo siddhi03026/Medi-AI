@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { FaHeart } from 'react-icons/fa';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { FaBars, FaHeart, FaTimes } from 'react-icons/fa';
 
 const navClass = ({ isActive }) =>
   `rounded-full px-4 py-2 text-sm font-medium transition ${
@@ -9,7 +9,13 @@ const navClass = ({ isActive }) =>
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     const stored = localStorage.getItem('imai_user');
@@ -42,7 +48,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur-md">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5">
         <Link to="/" className="flex items-center gap-2 brand-font text-xl font-bold text-medicalBlue">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-cyan-600 to-blue-600 text-white text-sm">
             <FaHeart />
@@ -53,7 +59,8 @@ export default function Navbar() {
             <span className="ml-1 text-xs text-slate-500">AI</span>
           </span>
         </Link>
-        <div className="flex flex-wrap items-center gap-1">
+
+        <div className="hidden items-center gap-1 md:flex">
           <NavLink to="/" className={navClass}>Home</NavLink>
           <NavLink to="/search" className={navClass}>Search</NavLink>
           <NavLink to="/map" className={navClass}>Map</NavLink>
@@ -73,7 +80,49 @@ export default function Navbar() {
             </NavLink>
           )}
         </div>
+
+        <div className="flex items-center gap-2 md:hidden">
+          {user ? (
+            <button onClick={logout} className="rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700">
+              Logout
+            </button>
+          ) : (
+            <NavLink to="/login" className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">
+              Log in
+            </NavLink>
+          )}
+
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="rounded-full border border-slate-300 bg-white p-2 text-slate-700"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          >
+            {menuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
       </nav>
+
+      {menuOpen && (
+        <div className="border-t border-slate-200 bg-white px-4 py-3 shadow-md md:hidden">
+          <div className="grid gap-2">
+            <NavLink to="/" className={({ isActive }) => `rounded-xl px-4 py-2.5 text-sm font-semibold ${isActive ? 'bg-sky-100 text-slate-900' : 'bg-slate-50 text-slate-700'}`}>
+              Home
+            </NavLink>
+            <NavLink to="/search" className={({ isActive }) => `rounded-xl px-4 py-2.5 text-sm font-semibold ${isActive ? 'bg-sky-100 text-slate-900' : 'bg-slate-50 text-slate-700'}`}>
+              Search
+            </NavLink>
+            <NavLink to="/map" className={({ isActive }) => `rounded-xl px-4 py-2.5 text-sm font-semibold ${isActive ? 'bg-sky-100 text-slate-900' : 'bg-slate-50 text-slate-700'}`}>
+              Map
+            </NavLink>
+            <NavLink to="/emergency" className={({ isActive }) => `rounded-xl px-4 py-2.5 text-sm font-semibold ${isActive ? 'bg-sky-100 text-slate-900' : 'bg-slate-50 text-slate-700'}`}>
+              Emergency
+            </NavLink>
+            <NavLink to="/settings" className={({ isActive }) => `rounded-xl px-4 py-2.5 text-sm font-semibold ${isActive ? 'bg-sky-100 text-slate-900' : 'bg-slate-50 text-slate-700'}`}>
+              Settings
+            </NavLink>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

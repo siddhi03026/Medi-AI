@@ -14,6 +14,26 @@ from app.routes import admin, auth, emergency, hospitals, search
 settings = get_settings()
 
 
+def _normalize_origin(origin: str) -> str:
+    return origin.strip().rstrip("/")
+
+
+def _build_cors_origins(frontend_origin: str) -> list[str]:
+    origins = {
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
+    }
+
+    for origin in frontend_origin.split(","):
+        cleaned = _normalize_origin(origin)
+        if cleaned:
+            origins.add(cleaned)
+
+    return sorted(origins)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     MongoManager.connect()
@@ -38,12 +58,7 @@ app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:5174",
-    ],
+    allow_origins=_build_cors_origins(settings.frontend_origin),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
