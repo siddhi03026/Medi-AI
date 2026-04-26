@@ -12,19 +12,22 @@ export default function LoginPage() {
   const [otp, setOtp] = useState('');
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [message, setMessage] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const onChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const login = async (e) => {
     e.preventDefault();
+    setMessage('');
     try {
       const response = await authService.login(form);
+      setSuccess(true);
       localStorage.setItem('imai_token', response.data.access_token);
       localStorage.setItem('imai_user', JSON.stringify(response.data.user));
       window.dispatchEvent(new Event('imai_auth_change'));
-      navigate(from, { replace: true });
+      setTimeout(() => navigate(from, { replace: true }), 1000);
     } catch (err) {
-      setMessage(err.response?.data?.detail || 'Login failed');
+      setMessage(err.response?.data?.detail || err.message || 'Login failed. Please try again.');
     }
   };
 
@@ -161,6 +164,7 @@ export default function LoginPage() {
         </button>
       </div>
 
+      {success && <div className="rounded-xl bg-emerald-50 p-4 text-xs font-medium text-emerald-800 border border-emerald-100">Login successful! Redirecting...</div>}
       {message && (
         <div className={`rounded-xl p-4 text-xs font-medium animate-in zoom-in-95 duration-200 ${message.includes('Mock OTP') ? 'bg-blue-50 text-blue-800 border border-blue-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
           {message}

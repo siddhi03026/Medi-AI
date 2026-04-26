@@ -18,10 +18,23 @@ export default function EmergencyPage() {
     }
   }, []);
 
-  useEffect(() => {
-    if (!result?.call_link) return;
-    window.location.href = result.call_link;
-  }, [result]);
+  // Note: Removed auto-redirect to tel: so user can see results first
+
+  const fetchEmergency = async (lat, lon) => {
+    try {
+      const response = await hospitalService.emergency({
+        lat,
+        lon,
+        medical_need: 'emergency',
+      });
+      setResult(response.data);
+      setStatus('Emergency mode active. Nearest viable hospital selected.');
+    } catch (err) {
+      setStatus(err.response?.data?.detail || 'Emergency mode failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const trigger = async () => {
     setLoading(true);
@@ -29,27 +42,21 @@ export default function EmergencyPage() {
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
-        try {
-          const response = await hospitalService.emergency({
-            lat: pos.coords.latitude,
-            lon: pos.coords.longitude,
-            medical_need: 'emergency',
-          });
-          setResult(response.data);
-          setStatus('Emergency mode active. Nearest viable hospital selected.');
-        } catch (err) {
-          setStatus(err.response?.data?.detail || 'Emergency mode failed.');
-        } finally {
-          setLoading(false);
-        }
+        await fetchEmergency(pos.coords.latitude, pos.coords.longitude);
       },
-      () => {
-        setStatus('Unable to read location. Enable location permission and retry.');
-        setLoading(false);
+      async () => {
+        // Fallback to Delhi coordinates when location is blocked
+        setStatus('Location unavailable. Using default location (Delhi)...');
+        await fetchEmergency(28.6139, 77.2090);
       },
       { enableHighAccuracy: true, timeout: 4000 }
     );
   };
+
+  // Auto-trigger on page load
+  useEffect(() => {
+    trigger();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="mx-auto max-w-3xl space-y-5 py-4 text-center">

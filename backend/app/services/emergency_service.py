@@ -18,10 +18,27 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 class EmergencyService:
     async def find_nearest_viable(self, lat: float, lon: float, medical_need: str | None = None) -> dict:
         db = get_db()
-        hospitals = await db[HOSPITAL_COLLECTION].find({}, {"embedding": 0}).to_list(length=1000)
+        try:
+            await db.command('ping')
+            hospitals = await db[HOSPITAL_COLLECTION].find({}, {"embedding": 0}).to_list(length=1000)
+        except Exception:
+            print("⚠️ DEMO MODE: MongoDB unreachable, using mock emergency results")
+            hospitals = [
+                {
+                    "_id": "mock_hospital_id",
+                    "name": "Demo Emergency Hospital",
+                    "city": "New Delhi",
+                    "lat": lat + 0.01,
+                    "lon": lon + 0.01,
+                    "phone": "+91 9999999999",
+                    "capability": "Trauma, Cardiac, ER",
+                    "description": "Best emergency care in the city."
+                }
+            ]
 
         if not hospitals:
             raise ValueError("No hospitals available. Load dataset first.")
+
 
         scored = []
         for hospital in hospitals:

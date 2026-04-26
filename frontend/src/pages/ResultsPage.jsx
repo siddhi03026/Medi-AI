@@ -35,7 +35,8 @@ export default function ResultsPage() {
         if (!mounted) return;
         setPayload(response.data);
       } catch (err) {
-        setError(err.response?.data?.detail || 'Failed to fetch hospital results.');
+        console.error('Search error:', err);
+        setError(err.response?.data?.detail || err.message || 'Failed to fetch hospital results.');
       } finally {
         setLoading(false);
       }

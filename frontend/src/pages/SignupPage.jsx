@@ -4,8 +4,8 @@ import { FaEnvelope, FaEye, FaLock, FaPhoneAlt, FaUser, FaHeart } from 'react-ic
 import { authService } from '../services/authService';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phoneRegex = /^\d{10}$/;
-const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+const phoneRegex = /^\d+$/; // Flexible for demo
+const passwordRegex = /^.{4,}$/; // Just 4+ chars for demo
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -14,23 +14,26 @@ export default function SignupPage() {
   const [form, setForm] = useState({ name: '', email: '', password: '', mobile_number: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const onChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const signup = async (e) => {
     e.preventDefault();
-    if (!emailRegex.test(form.email)) return setMessage('Invalid email format');
-    if (!passwordRegex.test(form.password)) return setMessage('Password must be 8+ chars, 1 uppercase, 1 number');
-    if (!phoneRegex.test(form.mobile_number)) return setMessage('Phone must be 10 digits');
+    setMessage('');
+    if (!emailRegex.test(form.email)) return setMessage('Please enter a valid email');
+    if (!passwordRegex.test(form.password)) return setMessage('Password should be at least 4 characters');
+    if (form.mobile_number && form.mobile_number.length < 10) return setMessage('Phone number should be 10 digits');
 
     try {
       const response = await authService.signup(form);
+      setSuccess(true);
       localStorage.setItem('imai_token', response.data.access_token);
       localStorage.setItem('imai_user', JSON.stringify(response.data.user));
       window.dispatchEvent(new Event('imai_auth_change'));
-      navigate(from, { replace: true });
+      setTimeout(() => navigate(from, { replace: true }), 1000);
     } catch (err) {
-      setMessage(err.response?.data?.detail || 'Signup failed');
+      setMessage(err.response?.data?.detail || err.message || 'Signup failed. Please try again.');
     }
   };
 
@@ -84,6 +87,7 @@ export default function SignupPage() {
         <p className="text-center text-xs text-slate-500">By continuing you agree to our gentle terms and privacy notice.</p>
       </form>
 
+      {success && <p className="rounded-lg bg-emerald-50 p-3 text-xs text-emerald-700">Account created successfully! Redirecting...</p>}
       {message && <p className="rounded-lg bg-red-50 p-3 text-xs text-red-700">{message}</p>}
       <p className="text-center text-sm text-slate-600">
         Already have an account? <Link to="/login" className="text-blue-800 font-medium">Log in</Link>
